@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 10000
+
+// Heaps
+int maxHeap[MAX_SIZE], minHeap[MAX_SIZE];
+int maxSize = 0, minSize = 0;
+
+void swap(int *a, int *b) {
+    int t = *a; *a = *b; *b = t;
+}
+
+// Max Heap insert
+void maxHeapInsert(int value) {
+    int i = maxSize++;
+    maxHeap[i] = value;
+    while (i != 0 && maxHeap[(i - 1) / 2] < maxHeap[i]) {
+        swap(&maxHeap[i], &maxHeap[(i - 1) / 2]);
+        i = (i - 1) / 2;
+    }
+}
+
+// Min Heap insert
+void minHeapInsert(int value) {
+    int i = minSize++;
+    minHeap[i] = value;
+    while (i != 0 && minHeap[(i - 1) / 2] > minHeap[i]) {
+        swap(&minHeap[i], &minHeap[(i - 1) / 2]);
+        i = (i - 1) / 2;
+    }
+}
+
+// Max Heap extract
+int maxHeapExtract() {
+    int root = maxHeap[0];
+    maxHeap[0] = maxHeap[--maxSize];
+    int i = 0;
+    while (2 * i + 1 < maxSize) {
+        int largest = i;
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        if (l < maxSize && maxHeap[l] > maxHeap[largest]) largest = l;
+        if (r < maxSize && maxHeap[r] > maxHeap[largest]) largest = r;
+        if (largest == i) break;
+        swap(&maxHeap[i], &maxHeap[largest]);
+        i = largest;
+    }
+    return root;
+}
+
+// Min Heap extract
+int minHeapExtract() {
+    int root = minHeap[0];
+    minHeap[0] = minHeap[--minSize];
+    int i = 0;
+    while (2 * i + 1 < minSize) {
+        int smallest = i;
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        if (l < minSize && minHeap[l] < minHeap[smallest]) smallest = l;
+        if (r < minSize && minHeap[r] < minHeap[smallest]) smallest = r;
+        if (smallest == i) break;
+        swap(&minHeap[i], &minHeap[smallest]);
+        i = smallest;
+    }
+    return root;
+}
+
+// Balance the two heaps
+void balanceHeaps() {
+    if (maxSize > minSize + 1) {
+        minHeapInsert(maxHeapExtract());
+    } else if (minSize > maxSize) {
+        maxHeapInsert(minHeapExtract());
+    }
+}
+
+// Get median
+double getMedian() {
+    if (maxSize == minSize) {
+        return ((double)maxHeap[0] + minHeap[0]) / 2.0;
+    }
+    return (double)maxHeap[0];
+}
+
+int main() {
+    int n, value;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &value);
+        if (maxSize == 0 || value <= maxHeap[0])
+            maxHeapInsert(value);
+        else
+            minHeapInsert(value);
+
+        balanceHeaps();
+        printf("%.1f\n", getMedian());
+    }
+    return 0;
+}
